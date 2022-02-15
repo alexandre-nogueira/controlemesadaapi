@@ -18,47 +18,72 @@
 |
 */
 
-import Route from '@ioc:Adonis/Core/Route'
+import Route from '@ioc:Adonis/Core/Route';
 
 Route.get('/', async () => {
-  return { hello: 'world' }
-})
+  return { hello: 'world' };
+});
 
 //Register and login, methods that doesnt need token
 Route.group(() => {
-  Route.post("register", "UserController.register");
-  Route.post("login", "UserController.login");
-  Route.get("exists/:email", "UserController.exists");
-}).prefix("api");
+  Route.post('register', 'UserController.register');
+  Route.post('login', 'UserController.login');
+  Route.get('exists/:email', 'UserController.exists');
+}).prefix('api');
 
 //Logout
 Route.group(() => {
-   Route.get('logout', 'UserController.logout')
-}).prefix('api').middleware("auth:api");
+  Route.get('logout', 'UserController.logout');
+})
+  .prefix('api')
+  .middleware('auth:api');
 
 //Users
 Route.group(() => {
-  Route.get('users/index', 'UserController.index')
-  Route.get('users/listchildren/', 'UserController.listChildren')
-  Route.get('users/getParent/', 'UserController.getParent')
-  Route.delete('users/:id', 'UserController.destroy')
-  Route.get('users/logout', 'UserController.logout')
-}).middleware("auth:api");
+  Route.get('users/index', 'UserController.index');
+  Route.get('users/listchildren/', 'UserController.listChildren');
+  Route.get('users/getParent/', 'UserController.getParent');
+  Route.get('users/logout', 'UserController.logout');
+}).middleware('auth:api');
+Route.group(() => {
+  Route.get('users/:userId', 'UserController.getSingle');
+  Route.delete('users/:userId', 'UserController.destroy');
+})
+  .middleware('auth:api')
+  .middleware('userValidation');
 
 //Accounts
 Route.group(() => {
-  Route.get('accounts', 'AccountsController.index')
-  Route.get('accounts/:accountId', 'AccountsController.show')
-  Route.post('accounts', 'AccountsController.store')
-  Route.patch('accounts/:accountId', 'AccountsController.update')
-  Route.delete('accounts/:accountId', 'AccountsController.destroy')
-}).middleware('auth:api').middleware('accountValidation');
+  Route.get('accounts', 'AccountsController.index');
+  Route.get('accounts/:accountId', 'AccountsController.show');
+  Route.post('accounts', 'AccountsController.store');
+  Route.patch('accounts/:accountId', 'AccountsController.update');
+  Route.delete('accounts/:accountId', 'AccountsController.destroy');
+  Route.get('userAccounts/:userId', 'AccountsController.listUserAccounts');
+})
+  .middleware('auth:api')
+  .middleware('accountValidation')
+  .middleware('userValidation');
 
 //Account Postings
 Route.group(() => {
-    Route.get('accountPostings/search/:accountId', 'AccountPostingsController.search')
-    Route.post('accountPostings/:accountId', 'AccountPostingsController.store')
-    Route.get('accountPostings/:accountId/:postindId', 'AccountPostingsController.show')
-    Route.delete('accountPostings/:accountId/:postindId', 'AccountPostingsController.destroy')
-    Route.patch('accountPostings/:accountId/:postingId', 'AccountPostingsController.update')
-}).middleware("auth:api").middleware('accountValidation');
+  Route.get(
+    'accountPostings/search/:accountId',
+    'AccountPostingsController.search'
+  );
+  Route.post('accountPostings/:accountId', 'AccountPostingsController.store');
+  Route.get(
+    'accountPostings/:accountId/:postindId',
+    'AccountPostingsController.show'
+  );
+  Route.delete(
+    'accountPostings/:accountId/:postindId',
+    'AccountPostingsController.destroy'
+  );
+  Route.patch(
+    'accountPostings/:accountId/:postingId',
+    'AccountPostingsController.update'
+  );
+})
+  .middleware('auth:api')
+  .middleware('accountValidation');

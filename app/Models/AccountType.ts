@@ -1,4 +1,4 @@
 export enum AccountTypes {
-  mesada = "1",
-  savings = "2",
+  mesada = '1',
+  savings = '2',
 }

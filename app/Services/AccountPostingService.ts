@@ -24,8 +24,36 @@ export class AccountPostingService {
     return payload.value;
   }
 
+  //VAlidate posting date
+  public async validateDate(request: RequestContract): Promise<DateTime> {
+    //Create schema to validate date
+    const accountSchema = schema.create({
+      postingDate: schema.date(),
+    });
+    const payload = await request.validate({ schema: accountSchema });
+    return payload.postingDate;
+  }
+
+  public async validateDateFrom(request: RequestContract): Promise<DateTime> {
+    //Create schema to validate date
+    const accountSchema = schema.create({
+      dateFrom: schema.date(),
+    });
+    const payload = await request.validate({ schema: accountSchema });
+    return payload.dateFrom;
+  }
+
+  public async validateDateTo(request: RequestContract): Promise<DateTime> {
+    //Create schema to validate date
+    const accountSchema = schema.create({
+      dateTo: schema.date(),
+    });
+    const payload = await request.validate({ schema: accountSchema });
+    return payload.dateTo;
+  }
+
   //Validate description
-  public async validateDescription(request: RequestContract) {
+  public async validateDescription(request: RequestContract): Promise<string> {
     //Create schemma to validate account
     const accountSchema = schema.create({
       description: schema.string({}, [rules.minLength(5)]),
@@ -36,12 +64,17 @@ export class AccountPostingService {
   }
 
   //Create new account posting
-  public async create(value: number, description: string) {
+  public async create(
+    value: number,
+    description: string,
+    postingDate: DateTime
+  ) {
     const newAccountPosting = new AccountPosting();
     const accountService = new AccountService();
     newAccountPosting.account_id = this._accountId;
     newAccountPosting.value = value;
     newAccountPosting.description = description;
+    newAccountPosting.postingDate = postingDate.toSQLDate();
 
     if (await newAccountPosting.save()) {
       if (!(await accountService.updateBallance(this._accountId, value))) {
@@ -55,8 +88,8 @@ export class AccountPostingService {
   public async getMany(dateFrom: DateTime, dateTo: DateTime) {
     return await AccountPosting.query()
       .where('account_id', this._accountId)
-      .andWhere('created_at', '>=', dateFrom.toSQLDate())
-      .andWhere('created_at', '<=', dateTo.toSQLDate());
+      .andWhere('posting_date', '>=', dateFrom.toSQLDate())
+      .andWhere('posting_date', '<=', dateTo.toSQLDate());
   }
 
   //Get single account posting
@@ -94,13 +127,17 @@ export class AccountPostingService {
   public async delete(id: number) {
     const accountPosting = await this.getSingle(id);
     if (accountPosting) {
-      if (accountPosting.delete()) {
-        return accountPosting;
-      }
+      await accountPosting.delete();
+      return accountPosting;
     }
   }
 
-  public async updatePosting(id: number, value: number, description: string) {
+  public async updatePosting(
+    id: number,
+    value: number,
+    description: string,
+    postingDate: DateTime
+  ) {
     const accountService = new AccountService();
     const accountPosting = await this.getSingle(id);
     let changed = false;
@@ -121,6 +158,10 @@ export class AccountPostingService {
       if (accountPosting.description !== description) {
         changed = true;
         accountPosting.description = description;
+      }
+      if (accountPosting.postingDate !== postingDate.toSQLDate()) {
+        changed = true;
+        accountPosting.postingDate = postingDate.toSQLDate();
       }
 
       if (changed) {

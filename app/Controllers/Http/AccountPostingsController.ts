@@ -7,24 +7,18 @@ export default class AcctPostingsController {
   public async search({ response, request, params }: HttpContextContract) {
     const accountPostingService = new AccountPostingService(params.accountId);
 
-    // //get query string data
-    // const { dateFrom, dateTo } = request.qs();
-    // if (!dateTo || !dateFrom){
-    //   response.status(400);
-    //   return {error: 'Query strings dateFrom and dateTo are mandatory'};
-    // }
+    const dateFrom = await accountPostingService.validateDateFrom(request);
+    const dateTo = await accountPostingService.validateDateTo(request);
 
-    // //Convert QS data to DateTime format
-    // const dateFromSQL: DateTime = DateTime.fromISO(dateFrom);
-    // const dateToSQL: DateTime = DateTime.fromISO(dateTo);
-
-    const dateFromSQL: DateTime = DateTime.fromISO('2021-01-01');
-    const dateToSQL: DateTime = DateTime.fromISO('2022-01-01');
+    // const dateFromSQL: DateTime = DateTime.fromISO('2021-01-01');
+    // const dateToSQL: DateTime = DateTime.fromISO('2025-01-01');
 
     //get account posgings
     const accountPostings = await accountPostingService.getMany(
-      dateFromSQL,
-      dateToSQL
+      // dateFromSQL,
+      // dateToSQL
+      dateFrom,
+      dateTo
     );
     if (accountPostings.length) {
       return accountPostings;
@@ -41,10 +35,12 @@ export default class AcctPostingsController {
     const description = await accountPostingService.validateDescription(
       request
     );
+    const postingDate = await accountPostingService.validateDate(request);
 
     const accountPosting = await accountPostingService.create(
       value,
-      description
+      description,
+      postingDate
     );
 
     if (!accountPosting) {
@@ -85,11 +81,13 @@ export default class AcctPostingsController {
     const description = await accountPostingService.validateDescription(
       request
     );
+    const postingDate = await accountPostingService.validateDate(request);
 
     const accountPosting = await accountPostingService.updatePosting(
       params.postingId,
       value,
-      description
+      description,
+      postingDate
     );
 
     if (!accountPosting) {
