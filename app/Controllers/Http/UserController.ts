@@ -4,10 +4,16 @@ import { UserService } from 'App/Services/UserService';
 
 export default class UserController {
   //Login
-  public async login({ request, auth }: HttpContextContract) {
+  public async login({ request, auth, response }: HttpContextContract) {
     const userService = new UserService();
     const email = await userService.validateEmailRegistered(request);
     const password = await userService.validatePassword(request);
+
+    const user = await userService.getByEmail(email);
+    if (user?.user_type == 2) {
+      response.status(400);
+      return { error: 'User not allowd' };
+    }
 
     return await userService.login(email, password, auth);
   }

@@ -5,7 +5,7 @@ export default class Users extends BaseSchema {
 
   public async up() {
     this.schema.table(this.tableName, (table) => {
-      //table.integer('parent_user_id')
+      table.integer('parent_user_id');
     });
   }
 

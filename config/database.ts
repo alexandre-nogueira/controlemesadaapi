@@ -5,9 +5,9 @@
  * file.
  */
 
-import Env from '@ioc:Adonis/Core/Env'
-import { OrmConfig } from '@ioc:Adonis/Lucid/Orm'
-import { DatabaseConfig } from '@ioc:Adonis/Lucid/Database'
+import Env from '@ioc:Adonis/Core/Env';
+import { OrmConfig } from '@ioc:Adonis/Lucid/Orm';
+import { DatabaseConfig } from '@ioc:Adonis/Lucid/Database';
 
 const databaseConfig: DatabaseConfig & { orm: Partial<OrmConfig> } = {
   /*
@@ -44,9 +44,32 @@ const databaseConfig: DatabaseConfig & { orm: Partial<OrmConfig> } = {
         database: Env.get('MYSQL_DB_NAME'),
       },
       healthCheck: false,
-			debug: false,
+      debug: false,
     },
 
+    /*
+    |--------------------------------------------------------------------------
+    | Postgres config
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for postgres database. Make sure to install the driver
+    | from npm when using this connection
+    |
+    | npm i pg
+    |
+    */
+    pg: {
+      client: 'pg',
+      connection: {
+        host: Env.get('PG_HOST'),
+        port: Env.get('PG_PORT'),
+        user: Env.get('PG_USER'),
+        password: Env.get('PG_PASSWORD'),
+        database: Env.get('PG_DB_NAME'),
+      },
+      healthCheck: false,
+      debug: false,
+    },
   },
 
   /*
@@ -61,8 +84,7 @@ const databaseConfig: DatabaseConfig & { orm: Partial<OrmConfig> } = {
   | - Or define a custom function to compute the primary key for a given model.
   |
   */
-  orm: {
-  },
-}
+  orm: {},
+};
 
-export default databaseConfig
+export default databaseConfig;
